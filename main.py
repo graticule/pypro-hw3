@@ -4,6 +4,7 @@ import re
 import requests
 from bs4 import BeautifulSoup, Tag
 from fake_headers import Headers
+from tqdm import tqdm
 
 
 def parse_page(url: str):
@@ -56,11 +57,11 @@ def main():
     count = get_page_count(first_page)
 
     result = []  # list of vacancies: href, salary, company_name, city
-    for page_number in range(count + 1):
+    for page_number in tqdm(range(count + 1), desc='Search page', colour='blue'):
         page = parse_page(f'{query_url}&page={page_number}')
         posts = page.find_all('div', class_='serp-item')
 
-        for post in posts:
+        for post in tqdm(posts, desc=f'Vacancies on page {page_number}', colour='green'):
             href = post.find_next('a', attrs={'data-qa': 'serp-item__title'}).get('href')
             vacancy = parse_page(href)
             if vacancy_has_all_keywords(vacancy, *keywords):
